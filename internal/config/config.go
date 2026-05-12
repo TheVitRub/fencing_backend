@@ -17,6 +17,19 @@ type Config struct {
 	Database    DatabaseConfig // PostgreSQL
 	Auth        AuthConfig     // JWT
 	Logging     LoggingConfig  // структурированное логирование
+	Upload      UploadConfig   // загрузка изображений
+}
+
+// UploadConfig — параметры хранилища загружаемых файлов.
+type UploadConfig struct {
+	// Dir — абсолютный или относительный путь к директории на диске,
+	// куда сохраняются загруженные файлы.
+	Dir string `mapstructure:"dir"`
+	// URLPrefix — префикс HTTP-пути, по которому файлы доступны клиенту.
+	// Например, при URLPrefix="/uploads" файл foo.jpg будет доступен как /uploads/foo.jpg.
+	URLPrefix string `mapstructure:"url_prefix"`
+	// MaxSizeMB — максимальный размер одного файла в мегабайтах.
+	MaxSizeMB int `mapstructure:"max_size_mb"`
 }
 
 // ServerConfig содержит параметры HTTP-сервера.
@@ -115,6 +128,11 @@ func Load() (*Config, error) {
 	cfg.Logging.Level = getOrDefault(v.GetString("logging.level"), "info")
 	cfg.Logging.Format = getOrDefault(v.GetString("logging.format"), "json")
 
+	// upload
+	cfg.Upload.Dir = getOrDefault(v.GetString("upload.dir"), "./uploads")
+	cfg.Upload.URLPrefix = getOrDefault(v.GetString("upload.url_prefix"), "/uploads")
+	cfg.Upload.MaxSizeMB = getIntOrDefault(v.GetInt("upload.max_size_mb"), 10)
+
 	if err := cfg.validate(); err != nil {
 		return nil, fmt.Errorf("ошибка валидации конфигурации: %w", err)
 	}
@@ -145,6 +163,11 @@ func bindEnvSecrets(v *viper.Viper) {
 	// logging
 	_ = v.BindEnv("logging.level", "LOGGING_LEVEL")
 	_ = v.BindEnv("logging.format", "LOGGING_FORMAT")
+
+	// upload
+	_ = v.BindEnv("upload.dir", "UPLOAD_DIR")
+	_ = v.BindEnv("upload.url_prefix", "UPLOAD_URL_PREFIX")
+	_ = v.BindEnv("upload.max_size_mb", "UPLOAD_MAX_SIZE_MB")
 }
 
 // validate проверяет, что все обязательные поля конфигурации заполнены.

@@ -22,6 +22,7 @@ func (s *Service) ListAchievements(ctx context.Context) ([]dto.AchievementRespon
 			Description: a.Description,
 			Year:        a.Year,
 			ImageURL:    a.ImageURL,
+			Images:      parseImages(a.Images),
 			CreatedAt:   a.CreatedAt,
 		})
 	}
@@ -40,7 +41,8 @@ func (s *Service) CreateAchievement(ctx context.Context, req dto.CreateAchieveme
 		Title:       req.Title,
 		Description: req.Description,
 		Year:        req.Year,
-		ImageURL:    req.ImageURL,
+		ImageURL:    pickCover(req.ImageURL, req.Images),
+		Images:      marshalImages(req.Images),
 	}
 	if err := s.repo.CreateAchievement(ctx, a); err != nil {
 		return nil, wrapRepoError("CreateAchievement", err)
@@ -51,6 +53,7 @@ func (s *Service) CreateAchievement(ctx context.Context, req dto.CreateAchieveme
 		Description: a.Description,
 		Year:        a.Year,
 		ImageURL:    a.ImageURL,
+		Images:      parseImages(a.Images),
 		CreatedAt:   a.CreatedAt,
 	}, nil
 }
@@ -65,7 +68,8 @@ func (s *Service) UpdateAchievement(ctx context.Context, id int64, req dto.Updat
 		Title:       req.Title,
 		Description: req.Description,
 		Year:        req.Year,
-		ImageURL:    req.ImageURL,
+		ImageURL:    pickCover(req.ImageURL, req.Images),
+		Images:      marshalImages(req.Images),
 	}
 	if err := s.repo.UpdateAchievement(ctx, a); err != nil {
 		return wrapRepoError("UpdateAchievement", err)

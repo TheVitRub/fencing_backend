@@ -37,7 +37,11 @@ func New(cfg *config.Config) (*App, error) {
 
 	repo := dbRepository.New(db, log)
 	svc := application.New(repo, cfg.Auth.JWTSecret, cfg.Auth.JWTTTL, log)
-	router := httpTransport.NewRouter(svc, log)
+	router := httpTransport.NewRouter(svc, log, httpTransport.UploadConfig{
+		Dir:       cfg.Upload.Dir,
+		URLPrefix: cfg.Upload.URLPrefix,
+		MaxSizeMB: cfg.Upload.MaxSizeMB,
+	})
 
 	return &App{
 		Config:  cfg,

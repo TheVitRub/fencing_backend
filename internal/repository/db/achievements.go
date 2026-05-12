@@ -12,7 +12,7 @@ import (
 func (r *DBRepository) ListAchievements(ctx context.Context) ([]dbEntities.Achievement, error) {
 	var list []dbEntities.Achievement
 	err := r.db.Select(ctx, nil, &list,
-		`SELECT id, title, description, year, image_url, created_at
+		`SELECT id, title, description, year, image_url, images, created_at
 		 FROM achievements
 		 ORDER BY year DESC, id DESC`,
 	)
@@ -24,12 +24,15 @@ func (r *DBRepository) ListAchievements(ctx context.Context) ([]dbEntities.Achie
 
 // CreateAchievement добавляет достижение в БД и проставляет ID.
 func (r *DBRepository) CreateAchievement(ctx context.Context, a *dbEntities.Achievement) error {
+	if a.Images == "" {
+		a.Images = "[]"
+	}
 	err := r.db.QueryRow(ctx, nil,
 		[]any{&a.ID},
-		`INSERT INTO achievements (title, description, year, image_url, created_at)
-		 VALUES ($1, $2, $3, $4, $5)
+		`INSERT INTO achievements (title, description, year, image_url, images, created_at)
+		 VALUES ($1, $2, $3, $4, $5, $6)
 		 RETURNING id`,
-		a.Title, a.Description, a.Year, a.ImageURL, time.Now(),
+		a.Title, a.Description, a.Year, a.ImageURL, a.Images, time.Now(),
 	)
 	if err != nil {
 		return fmt.Errorf("CreateAchievement: %w", err)
@@ -39,11 +42,14 @@ func (r *DBRepository) CreateAchievement(ctx context.Context, a *dbEntities.Achi
 
 // UpdateAchievement обновляет поля достижения по ID.
 func (r *DBRepository) UpdateAchievement(ctx context.Context, a *dbEntities.Achievement) error {
+	if a.Images == "" {
+		a.Images = "[]"
+	}
 	_, err := r.db.Exec(ctx, nil,
 		`UPDATE achievements
-		 SET title=$1, description=$2, year=$3, image_url=$4
-		 WHERE id=$5`,
-		a.Title, a.Description, a.Year, a.ImageURL, a.ID,
+		 SET title=$1, description=$2, year=$3, image_url=$4, images=$5
+		 WHERE id=$6`,
+		a.Title, a.Description, a.Year, a.ImageURL, a.Images, a.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("UpdateAchievement id=%d: %w", a.ID, err)

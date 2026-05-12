@@ -22,6 +22,7 @@ func (s *Service) ListHonorMembers(ctx context.Context) ([]dto.HonorMemberRespon
 			Title:       m.Title,
 			Description: m.Description,
 			PhotoURL:    m.PhotoURL,
+			Images:      parseImages(m.Images),
 			SortOrder:   m.SortOrder,
 			CreatedAt:   m.CreatedAt,
 		})
@@ -38,7 +39,8 @@ func (s *Service) CreateHonorMember(ctx context.Context, req dto.CreateHonorMemb
 		Name:        req.Name,
 		Title:       req.Title,
 		Description: req.Description,
-		PhotoURL:    req.PhotoURL,
+		PhotoURL:    pickCover(req.PhotoURL, req.Images),
+		Images:      marshalImages(req.Images),
 		SortOrder:   req.SortOrder,
 	}
 	if err := s.repo.CreateHonorMember(ctx, m); err != nil {
@@ -50,6 +52,7 @@ func (s *Service) CreateHonorMember(ctx context.Context, req dto.CreateHonorMemb
 		Title:       m.Title,
 		Description: m.Description,
 		PhotoURL:    m.PhotoURL,
+		Images:      parseImages(m.Images),
 		SortOrder:   m.SortOrder,
 		CreatedAt:   m.CreatedAt,
 	}, nil
@@ -65,7 +68,8 @@ func (s *Service) UpdateHonorMember(ctx context.Context, id int64, req dto.Updat
 		Name:        req.Name,
 		Title:       req.Title,
 		Description: req.Description,
-		PhotoURL:    req.PhotoURL,
+		PhotoURL:    pickCover(req.PhotoURL, req.Images),
+		Images:      marshalImages(req.Images),
 		SortOrder:   req.SortOrder,
 	}
 	if err := s.repo.UpdateHonorMember(ctx, m); err != nil {

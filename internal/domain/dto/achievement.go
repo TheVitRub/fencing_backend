@@ -9,21 +9,24 @@ type AchievementResponse struct {
 	Description string    `json:"description"`
 	Year        int       `json:"year"`
 	ImageURL    string    `json:"image_url"`
+	Images      []string  `json:"images"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 // CreateAchievementRequest — запрос на создание достижения.
 type CreateAchievementRequest struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
-	Year        int    `json:"year"  binding:"required,min=1900"`
-	ImageURL    string `json:"image_url"`
+	Title       string   `json:"title" binding:"required"`
+	Description string   `json:"description"`
+	Year        int      `json:"year"  binding:"required,min=1900"`
+	ImageURL    string   `json:"image_url"`
+	Images      []string `json:"images"`
 }
 
 // UpdateAchievementRequest — запрос на обновление достижения.
 type UpdateAchievementRequest struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Year        int    `json:"year"`
-	ImageURL    string `json:"image_url"`
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Year        int      `json:"year"`
+	ImageURL    string   `json:"image_url"`
+	Images      []string `json:"images"`
 }

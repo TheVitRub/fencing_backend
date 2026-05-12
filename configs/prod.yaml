@@ -25,3 +25,10 @@ auth:
 logging:
   level: "info"
   format: "json"
+
+upload:
+  # В production монтируйте volume (например /var/lib/fencing/uploads),
+  # путь можно переопределить через UPLOAD_DIR
+  dir: "/var/lib/fencing/uploads"
+  url_prefix: "/uploads"
+  max_size_mb: 15

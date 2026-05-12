@@ -23,6 +23,7 @@ func (s *Service) ListEvents(ctx context.Context) ([]dto.EventResponse, error) {
 			Date:        e.Date,
 			Location:    e.Location,
 			ImageURL:    e.ImageURL,
+			Images:      parseImages(e.Images),
 			CreatedAt:   e.CreatedAt,
 		})
 	}
@@ -39,7 +40,8 @@ func (s *Service) CreateEvent(ctx context.Context, req dto.CreateEventRequest) (
 		Description: req.Description,
 		Date:        req.Date,
 		Location:    req.Location,
-		ImageURL:    req.ImageURL,
+		ImageURL:    pickCover(req.ImageURL, req.Images),
+		Images:      marshalImages(req.Images),
 	}
 	if err := s.repo.CreateEvent(ctx, e); err != nil {
 		return nil, wrapRepoError("CreateEvent", err)
@@ -55,6 +57,7 @@ func (s *Service) CreateEvent(ctx context.Context, req dto.CreateEventRequest) (
 		Date:        e.Date,
 		Location:    e.Location,
 		ImageURL:    e.ImageURL,
+		Images:      parseImages(e.Images),
 		CreatedAt:   e.CreatedAt,
 	}, nil
 }
@@ -70,7 +73,8 @@ func (s *Service) UpdateEvent(ctx context.Context, id int64, req dto.UpdateEvent
 		Description: req.Description,
 		Date:        req.Date,
 		Location:    req.Location,
-		ImageURL:    req.ImageURL,
+		ImageURL:    pickCover(req.ImageURL, req.Images),
+		Images:      marshalImages(req.Images),
 	}
 	if err := s.repo.UpdateEvent(ctx, e); err != nil {
 		return wrapRepoError("UpdateEvent", err)

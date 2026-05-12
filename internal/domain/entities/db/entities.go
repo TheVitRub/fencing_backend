@@ -23,13 +23,15 @@ type Page struct {
 }
 
 // Event — событие (турнир, тренировка, показательное выступление).
+// Поле Images хранит JSON-массив URL изображений (галерея).
 type Event struct {
 	ID          int64     `db:"id"`
 	Title       string    `db:"title"`
 	Description string    `db:"description"`
 	Date        time.Time `db:"date"`
 	Location    string    `db:"location"`
-	ImageURL    string    `db:"image_url"`
+	ImageURL    string    `db:"image_url"` // главная обложка (deprecated, оставлено для совместимости)
+	Images      string    `db:"images"`    // JSON-массив URL: ["/uploads/a.jpg", ...]
 	CreatedAt   time.Time `db:"created_at"`
 }
 
@@ -51,6 +53,7 @@ type HonorMember struct {
 	Title       string    `db:"title"`
 	Description string    `db:"description"`
 	PhotoURL    string    `db:"photo_url"`
+	Images      string    `db:"images"` // JSON-массив URL дополнительных фото
 	SortOrder   int       `db:"sort_order"`
 	CreatedAt   time.Time `db:"created_at"`
 }
@@ -61,7 +64,8 @@ type Achievement struct {
 	Title       string    `db:"title"`
 	Description string    `db:"description"`
 	Year        int       `db:"year"`
-	ImageURL    string    `db:"image_url"`
+	ImageURL    string    `db:"image_url"` // главная обложка
+	Images      string    `db:"images"`    // JSON-массив URL дополнительных изображений
 	CreatedAt   time.Time `db:"created_at"`
 }
 

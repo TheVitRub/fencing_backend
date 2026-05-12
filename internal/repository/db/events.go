@@ -12,7 +12,7 @@ import (
 func (r *DBRepository) ListEvents(ctx context.Context) ([]dbEntities.Event, error) {
 	var events []dbEntities.Event
 	err := r.db.Select(ctx, nil, &events,
-		`SELECT id, title, description, date, location, image_url, created_at
+		`SELECT id, title, description, date, location, image_url, images, created_at
 		 FROM events
 		 ORDER BY date DESC`,
 	)
@@ -24,12 +24,15 @@ func (r *DBRepository) ListEvents(ctx context.Context) ([]dbEntities.Event, erro
 
 // CreateEvent добавляет событие в БД и проставляет ID в переданную структуру.
 func (r *DBRepository) CreateEvent(ctx context.Context, e *dbEntities.Event) error {
+	if e.Images == "" {
+		e.Images = "[]"
+	}
 	err := r.db.QueryRow(ctx, nil,
 		[]any{&e.ID},
-		`INSERT INTO events (title, description, date, location, image_url, created_at)
-		 VALUES ($1, $2, $3, $4, $5, $6)
+		`INSERT INTO events (title, description, date, location, image_url, images, created_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)
 		 RETURNING id`,
-		e.Title, e.Description, e.Date, e.Location, e.ImageURL, time.Now(),
+		e.Title, e.Description, e.Date, e.Location, e.ImageURL, e.Images, time.Now(),
 	)
 	if err != nil {
 		return fmt.Errorf("CreateEvent: %w", err)
@@ -39,11 +42,14 @@ func (r *DBRepository) CreateEvent(ctx context.Context, e *dbEntities.Event) err
 
 // UpdateEvent обновляет поля события по ID.
 func (r *DBRepository) UpdateEvent(ctx context.Context, e *dbEntities.Event) error {
+	if e.Images == "" {
+		e.Images = "[]"
+	}
 	_, err := r.db.Exec(ctx, nil,
 		`UPDATE events
-		 SET title=$1, description=$2, date=$3, location=$4, image_url=$5
-		 WHERE id=$6`,
-		e.Title, e.Description, e.Date, e.Location, e.ImageURL, e.ID,
+		 SET title=$1, description=$2, date=$3, location=$4, image_url=$5, images=$6
+		 WHERE id=$7`,
+		e.Title, e.Description, e.Date, e.Location, e.ImageURL, e.Images, e.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("UpdateEvent id=%d: %w", e.ID, err)

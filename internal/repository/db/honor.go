@@ -12,7 +12,7 @@ import (
 func (r *DBRepository) ListHonorMembers(ctx context.Context) ([]dbEntities.HonorMember, error) {
 	var members []dbEntities.HonorMember
 	err := r.db.Select(ctx, nil, &members,
-		`SELECT id, name, title, description, photo_url, sort_order, created_at
+		`SELECT id, name, title, description, photo_url, images, sort_order, created_at
 		 FROM honor_members
 		 ORDER BY sort_order ASC, id ASC`,
 	)
@@ -24,12 +24,15 @@ func (r *DBRepository) ListHonorMembers(ctx context.Context) ([]dbEntities.Honor
 
 // CreateHonorMember добавляет участника на доску почёта и проставляет ID.
 func (r *DBRepository) CreateHonorMember(ctx context.Context, m *dbEntities.HonorMember) error {
+	if m.Images == "" {
+		m.Images = "[]"
+	}
 	err := r.db.QueryRow(ctx, nil,
 		[]any{&m.ID},
-		`INSERT INTO honor_members (name, title, description, photo_url, sort_order, created_at)
-		 VALUES ($1, $2, $3, $4, $5, $6)
+		`INSERT INTO honor_members (name, title, description, photo_url, images, sort_order, created_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)
 		 RETURNING id`,
-		m.Name, m.Title, m.Description, m.PhotoURL, m.SortOrder, time.Now(),
+		m.Name, m.Title, m.Description, m.PhotoURL, m.Images, m.SortOrder, time.Now(),
 	)
 	if err != nil {
 		return fmt.Errorf("CreateHonorMember: %w", err)
@@ -39,11 +42,14 @@ func (r *DBRepository) CreateHonorMember(ctx context.Context, m *dbEntities.Hono
 
 // UpdateHonorMember обновляет поля участника доски почёта по ID.
 func (r *DBRepository) UpdateHonorMember(ctx context.Context, m *dbEntities.HonorMember) error {
+	if m.Images == "" {
+		m.Images = "[]"
+	}
 	_, err := r.db.Exec(ctx, nil,
 		`UPDATE honor_members
-		 SET name=$1, title=$2, description=$3, photo_url=$4, sort_order=$5
-		 WHERE id=$6`,
-		m.Name, m.Title, m.Description, m.PhotoURL, m.SortOrder, m.ID,
+		 SET name=$1, title=$2, description=$3, photo_url=$4, images=$5, sort_order=$6
+		 WHERE id=$7`,
+		m.Name, m.Title, m.Description, m.PhotoURL, m.Images, m.SortOrder, m.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("UpdateHonorMember id=%d: %w", m.ID, err)
