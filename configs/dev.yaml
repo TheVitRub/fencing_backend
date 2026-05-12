@@ -1,0 +1,32 @@
+environment: development
+service_name: fencing-club
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "fencing"
+  password: "fencing"
+  name: "fencing_club"
+  ssl_mode: "disable"
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: "30m"
+  conn_max_idle_time: "10m"
+  connect_timeout: "10s"
+  max_retries: 3
+  retry_interval: "2s"
+  health_check_period: "30s"
+  health_check_reconnect_threshold: 3
+
+auth:
+  # jwt_secret передаётся через переменную окружения JWT_SECRET (см. .env.dev)
+  jwt_secret: ""
+  jwt_ttl: "24h"
+
+logging:
+  level: "debug"
+  format: "console"

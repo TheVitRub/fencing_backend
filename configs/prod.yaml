@@ -1,0 +1,27 @@
+environment: production
+service_name: fencing-club
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+database:
+  # Все секреты передаются через переменные окружения в production (DB_HOST, DB_PORT, и т.д.)
+  ssl_mode: "require"
+  max_open_conns: 50
+  max_idle_conns: 20
+  conn_max_lifetime: "30m"
+  conn_max_idle_time: "10m"
+  connect_timeout: "10s"
+  max_retries: 5
+  retry_interval: "3s"
+  health_check_period: "30s"
+  health_check_reconnect_threshold: 3
+
+auth:
+  # jwt_secret и jwt_ttl передаются через переменные окружения
+  jwt_ttl: "8h"
+
+logging:
+  level: "info"
+  format: "json"
