@@ -76,16 +76,20 @@ type KnowledgeArticleResponse struct {
 	Body       string    `json:"body"`
 	Visibility string    `json:"visibility"`
 	SortOrder  int       `json:"sort_order"`
+	ImageURL   string    `json:"image_url"`
+	Images     []string  `json:"images"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type UpsertKnowledgeArticleRequest struct {
-	Title      string `json:"title" binding:"required"`
-	Category   string `json:"category"`
-	Body       string `json:"body"`
-	Visibility string `json:"visibility"`
-	SortOrder  int    `json:"sort_order"`
+	Title      string   `json:"title" binding:"required"`
+	Category   string   `json:"category"`
+	Body       string   `json:"body"`
+	Visibility string   `json:"visibility"`
+	SortOrder  int      `json:"sort_order"`
+	ImageURL   string   `json:"image_url"`
+	Images     []string `json:"images"`
 }
 
 type GlossaryTermResponse struct {
@@ -93,14 +97,18 @@ type GlossaryTermResponse struct {
 	Term       string    `json:"term"`
 	Category   string    `json:"category"`
 	Definition string    `json:"definition"`
+	ImageURL   string    `json:"image_url"`
+	Images     []string  `json:"images"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type UpsertGlossaryTermRequest struct {
-	Term       string `json:"term" binding:"required"`
-	Category   string `json:"category"`
-	Definition string `json:"definition"`
+	Term       string   `json:"term" binding:"required"`
+	Category   string   `json:"category"`
+	Definition string   `json:"definition"`
+	ImageURL   string   `json:"image_url"`
+	Images     []string `json:"images"`
 }
 
 type StudentProgressResponse struct {

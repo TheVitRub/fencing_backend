@@ -210,7 +210,7 @@ func (r *DBRepository) ListKnowledgeArticles(ctx context.Context, role string) (
 		allowed = append(allowed, "student")
 	}
 	err := r.db.Select(ctx, nil, &articles,
-		`SELECT id, title, category, body, visibility, sort_order, created_at, updated_at
+		`SELECT id, title, category, body, visibility, sort_order, image_url, images, created_at, updated_at
 		 FROM knowledge_articles
 		 WHERE visibility = ANY($1)
 		 ORDER BY sort_order ASC, title ASC`,
@@ -225,9 +225,9 @@ func (r *DBRepository) ListKnowledgeArticles(ctx context.Context, role string) (
 func (r *DBRepository) CreateKnowledgeArticle(ctx context.Context, a *dbEntities.KnowledgeArticle) error {
 	err := r.db.QueryRow(ctx, nil,
 		[]any{&a.ID},
-		`INSERT INTO knowledge_articles (title, category, body, visibility, sort_order)
-		 VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-		a.Title, a.Category, a.Body, a.Visibility, a.SortOrder,
+		`INSERT INTO knowledge_articles (title, category, body, visibility, sort_order, image_url, images)
+		 VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+		a.Title, a.Category, a.Body, a.Visibility, a.SortOrder, a.ImageURL, a.Images,
 	)
 	if err != nil {
 		return fmt.Errorf("CreateKnowledgeArticle: %w", err)
@@ -238,9 +238,10 @@ func (r *DBRepository) CreateKnowledgeArticle(ctx context.Context, a *dbEntities
 func (r *DBRepository) UpdateKnowledgeArticle(ctx context.Context, a *dbEntities.KnowledgeArticle) error {
 	_, err := r.db.Exec(ctx, nil,
 		`UPDATE knowledge_articles
-		 SET title=$1, category=$2, body=$3, visibility=$4, sort_order=$5, updated_at=NOW()
-		 WHERE id=$6`,
-		a.Title, a.Category, a.Body, a.Visibility, a.SortOrder, a.ID,
+		 SET title=$1, category=$2, body=$3, visibility=$4, sort_order=$5,
+		     image_url=$6, images=$7, updated_at=NOW()
+		 WHERE id=$8`,
+		a.Title, a.Category, a.Body, a.Visibility, a.SortOrder, a.ImageURL, a.Images, a.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("UpdateKnowledgeArticle: %w", err)
@@ -259,7 +260,7 @@ func (r *DBRepository) DeleteKnowledgeArticle(ctx context.Context, id int64) err
 func (r *DBRepository) ListGlossaryTerms(ctx context.Context) ([]dbEntities.GlossaryTerm, error) {
 	var terms []dbEntities.GlossaryTerm
 	err := r.db.Select(ctx, nil, &terms,
-		`SELECT id, term, category, definition, created_at, updated_at
+		`SELECT id, term, category, definition, image_url, images, created_at, updated_at
 		 FROM glossary_terms
 		 ORDER BY term ASC`,
 	)
@@ -272,9 +273,9 @@ func (r *DBRepository) ListGlossaryTerms(ctx context.Context) ([]dbEntities.Glos
 func (r *DBRepository) CreateGlossaryTerm(ctx context.Context, t *dbEntities.GlossaryTerm) error {
 	err := r.db.QueryRow(ctx, nil,
 		[]any{&t.ID},
-		`INSERT INTO glossary_terms (term, category, definition)
-		 VALUES ($1,$2,$3) RETURNING id`,
-		t.Term, t.Category, t.Definition,
+		`INSERT INTO glossary_terms (term, category, definition, image_url, images)
+		 VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+		t.Term, t.Category, t.Definition, t.ImageURL, t.Images,
 	)
 	if err != nil {
 		return fmt.Errorf("CreateGlossaryTerm: %w", err)
@@ -284,8 +285,10 @@ func (r *DBRepository) CreateGlossaryTerm(ctx context.Context, t *dbEntities.Glo
 
 func (r *DBRepository) UpdateGlossaryTerm(ctx context.Context, t *dbEntities.GlossaryTerm) error {
 	_, err := r.db.Exec(ctx, nil,
-		`UPDATE glossary_terms SET term=$1, category=$2, definition=$3, updated_at=NOW() WHERE id=$4`,
-		t.Term, t.Category, t.Definition, t.ID,
+		`UPDATE glossary_terms
+		 SET term=$1, category=$2, definition=$3, image_url=$4, images=$5, updated_at=NOW()
+		 WHERE id=$6`,
+		t.Term, t.Category, t.Definition, t.ImageURL, t.Images, t.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("UpdateGlossaryTerm: %w", err)

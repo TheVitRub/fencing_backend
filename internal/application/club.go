@@ -140,6 +140,21 @@ func (s *Service) UpsertInstructorProfile(ctx context.Context, actorID int64, ac
 	return wrapRepoError("UpsertInstructorProfile", s.repo.UpsertInstructorProfile(ctx, p))
 }
 
+func knowledgeArticleToDTO(a dbEntities.KnowledgeArticle) dto.KnowledgeArticleResponse {
+	return dto.KnowledgeArticleResponse{
+		ID:         a.ID,
+		Title:      a.Title,
+		Category:   a.Category,
+		Body:       a.Body,
+		Visibility: a.Visibility,
+		SortOrder:  a.SortOrder,
+		ImageURL:   a.ImageURL,
+		Images:     parseImages(a.Images),
+		CreatedAt:  a.CreatedAt,
+		UpdatedAt:  a.UpdatedAt,
+	}
+}
+
 func (s *Service) ListKnowledgeArticles(ctx context.Context, role string) ([]dto.KnowledgeArticleResponse, error) {
 	items, err := s.repo.ListKnowledgeArticles(ctx, role)
 	if err != nil {
@@ -147,26 +162,48 @@ func (s *Service) ListKnowledgeArticles(ctx context.Context, role string) ([]dto
 	}
 	resp := make([]dto.KnowledgeArticleResponse, 0, len(items))
 	for _, a := range items {
-		resp = append(resp, dto.KnowledgeArticleResponse(a))
+		resp = append(resp, knowledgeArticleToDTO(a))
 	}
 	return resp, nil
 }
 
 func (s *Service) CreateKnowledgeArticle(ctx context.Context, req dto.UpsertKnowledgeArticleRequest) (*dto.KnowledgeArticleResponse, error) {
-	a := &dbEntities.KnowledgeArticle{Title: req.Title, Category: req.Category, Body: req.Body, Visibility: defaultString(req.Visibility, "public"), SortOrder: req.SortOrder}
+	a := &dbEntities.KnowledgeArticle{
+		Title: req.Title, Category: req.Category, Body: req.Body,
+		Visibility: defaultString(req.Visibility, "public"), SortOrder: req.SortOrder,
+		ImageURL: req.ImageURL, Images: marshalImages(req.Images),
+	}
 	if err := s.repo.CreateKnowledgeArticle(ctx, a); err != nil {
 		return nil, wrapRepoError("CreateKnowledgeArticle", err)
 	}
-	return &dto.KnowledgeArticleResponse{ID: a.ID, Title: a.Title, Category: a.Category, Body: a.Body, Visibility: a.Visibility, SortOrder: a.SortOrder}, nil
+	resp := knowledgeArticleToDTO(*a)
+	return &resp, nil
 }
 
 func (s *Service) UpdateKnowledgeArticle(ctx context.Context, id int64, req dto.UpsertKnowledgeArticleRequest) error {
-	a := &dbEntities.KnowledgeArticle{ID: id, Title: req.Title, Category: req.Category, Body: req.Body, Visibility: defaultString(req.Visibility, "public"), SortOrder: req.SortOrder}
+	a := &dbEntities.KnowledgeArticle{
+		ID: id, Title: req.Title, Category: req.Category, Body: req.Body,
+		Visibility: defaultString(req.Visibility, "public"), SortOrder: req.SortOrder,
+		ImageURL: req.ImageURL, Images: marshalImages(req.Images),
+	}
 	return wrapRepoError("UpdateKnowledgeArticle", s.repo.UpdateKnowledgeArticle(ctx, a))
 }
 
 func (s *Service) DeleteKnowledgeArticle(ctx context.Context, id int64) error {
 	return wrapRepoError("DeleteKnowledgeArticle", s.repo.DeleteKnowledgeArticle(ctx, id))
+}
+
+func glossaryTermToDTO(t dbEntities.GlossaryTerm) dto.GlossaryTermResponse {
+	return dto.GlossaryTermResponse{
+		ID:         t.ID,
+		Term:       t.Term,
+		Category:   t.Category,
+		Definition: t.Definition,
+		ImageURL:   t.ImageURL,
+		Images:     parseImages(t.Images),
+		CreatedAt:  t.CreatedAt,
+		UpdatedAt:  t.UpdatedAt,
+	}
 }
 
 func (s *Service) ListGlossaryTerms(ctx context.Context) ([]dto.GlossaryTermResponse, error) {
@@ -176,21 +213,28 @@ func (s *Service) ListGlossaryTerms(ctx context.Context) ([]dto.GlossaryTermResp
 	}
 	resp := make([]dto.GlossaryTermResponse, 0, len(items))
 	for _, t := range items {
-		resp = append(resp, dto.GlossaryTermResponse(t))
+		resp = append(resp, glossaryTermToDTO(t))
 	}
 	return resp, nil
 }
 
 func (s *Service) CreateGlossaryTerm(ctx context.Context, req dto.UpsertGlossaryTermRequest) (*dto.GlossaryTermResponse, error) {
-	t := &dbEntities.GlossaryTerm{Term: req.Term, Category: req.Category, Definition: req.Definition}
+	t := &dbEntities.GlossaryTerm{
+		Term: req.Term, Category: req.Category, Definition: req.Definition,
+		ImageURL: req.ImageURL, Images: marshalImages(req.Images),
+	}
 	if err := s.repo.CreateGlossaryTerm(ctx, t); err != nil {
 		return nil, wrapRepoError("CreateGlossaryTerm", err)
 	}
-	return &dto.GlossaryTermResponse{ID: t.ID, Term: t.Term, Category: t.Category, Definition: t.Definition}, nil
+	resp := glossaryTermToDTO(*t)
+	return &resp, nil
 }
 
 func (s *Service) UpdateGlossaryTerm(ctx context.Context, id int64, req dto.UpsertGlossaryTermRequest) error {
-	t := &dbEntities.GlossaryTerm{ID: id, Term: req.Term, Category: req.Category, Definition: req.Definition}
+	t := &dbEntities.GlossaryTerm{
+		ID: id, Term: req.Term, Category: req.Category, Definition: req.Definition,
+		ImageURL: req.ImageURL, Images: marshalImages(req.Images),
+	}
 	return wrapRepoError("UpdateGlossaryTerm", s.repo.UpdateGlossaryTerm(ctx, t))
 }
 

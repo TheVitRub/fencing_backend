@@ -146,6 +146,8 @@ type KnowledgeArticle struct {
 	Body       string    `db:"body"`
 	Visibility string    `db:"visibility"`
 	SortOrder  int       `db:"sort_order"`
+	ImageURL   string    `db:"image_url"`
+	Images     string    `db:"images"`
 	CreatedAt  time.Time `db:"created_at"`
 	UpdatedAt  time.Time `db:"updated_at"`
 }
@@ -155,6 +157,8 @@ type GlossaryTerm struct {
 	Term       string    `db:"term"`
 	Category   string    `db:"category"`
 	Definition string    `db:"definition"`
+	ImageURL   string    `db:"image_url"`
+	Images     string    `db:"images"`
 	CreatedAt  time.Time `db:"created_at"`
 	UpdatedAt  time.Time `db:"updated_at"`
 }

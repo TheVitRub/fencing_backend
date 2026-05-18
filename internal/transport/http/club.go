@@ -20,6 +20,26 @@ func (h *Handler) listUsersHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+func (h *Handler) listStudentUsersHandler(c *gin.Context) {
+	users, err := h.svc.ListUsersByRoles(c.Request.Context(), "student")
+	if err != nil {
+		status, msg := mapError(err)
+		c.JSON(status, gin.H{"error": msg})
+		return
+	}
+	c.JSON(http.StatusOK, users)
+}
+
+func (h *Handler) listInstructorUsersHandler(c *gin.Context) {
+	users, err := h.svc.ListUsersByRoles(c.Request.Context(), "instructor", "admin", "founder")
+	if err != nil {
+		status, msg := mapError(err)
+		c.JSON(status, gin.H{"error": msg})
+		return
+	}
+	c.JSON(http.StatusOK, users)
+}
+
 func (h *Handler) updateUserRoleHandler(c *gin.Context) {
 	id, err := parseIDParam(c, "id")
 	if err != nil {

@@ -117,6 +117,8 @@ func NewRouter(svc *application.Service, log *logger.Logger, upload UploadConfig
 
 			// Пользователи и роли
 			admin.GET("/users", roleMiddleware("admin", "founder"), h.listUsersHandler)
+			admin.GET("/students", roleMiddleware("instructor", "admin", "founder"), h.listStudentUsersHandler)
+			admin.GET("/instructor-users", roleMiddleware("instructor", "admin", "founder"), h.listInstructorUsersHandler)
 			admin.PUT("/users/:id/role", roleMiddleware("admin", "founder"), h.updateUserRoleHandler)
 
 			// Профили инструкторов

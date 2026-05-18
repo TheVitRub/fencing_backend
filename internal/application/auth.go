@@ -207,6 +207,24 @@ func (s *Service) ListUsers(ctx context.Context) ([]dto.UserResponse, error) {
 	return resp, nil
 }
 
+func (s *Service) ListUsersByRoles(ctx context.Context, roleNames ...string) ([]dto.UserResponse, error) {
+	users, err := s.ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	allowed := make(map[string]bool, len(roleNames))
+	for _, role := range roleNames {
+		allowed[role] = true
+	}
+	resp := make([]dto.UserResponse, 0, len(users))
+	for _, user := range users {
+		if allowed[user.Role] {
+			resp = append(resp, user)
+		}
+	}
+	return resp, nil
+}
+
 func (s *Service) UpdateUserRole(ctx context.Context, id int64, role string) error {
 	if id <= 0 {
 		return apperrors.Validationf("id пользователя должен быть больше нуля")
