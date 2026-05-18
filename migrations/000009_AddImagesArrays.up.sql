@@ -9,3 +9,4 @@ ALTER TABLE honor_members ADD COLUMN IF NOT EXISTS images TEXT NOT NULL DEFAULT 
 COMMENT ON COLUMN events.images        IS 'JSON-массив URL изображений события';
 COMMENT ON COLUMN achievements.images  IS 'JSON-массив URL изображений достижения';
 COMMENT ON COLUMN honor_members.images IS 'JSON-массив URL дополнительных фотографий участника';
+
