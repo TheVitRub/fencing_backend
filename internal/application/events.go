@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"fencing-club/internal/domain/apperrors"
-	dbEntities "fencing-club/internal/domain/entities/db"
 	"fencing-club/internal/domain/dto"
+	dbEntities "fencing-club/internal/domain/entities/db"
 )
 
 // ListEvents возвращает все события клуба, отсортированные по дате убывания.
@@ -22,6 +22,8 @@ func (s *Service) ListEvents(ctx context.Context) ([]dto.EventResponse, error) {
 			Description: e.Description,
 			Date:        e.Date,
 			Location:    e.Location,
+			Type:        e.Type,
+			Status:      e.Status,
 			ImageURL:    e.ImageURL,
 			Images:      parseImages(e.Images),
 			CreatedAt:   e.CreatedAt,
@@ -40,6 +42,8 @@ func (s *Service) CreateEvent(ctx context.Context, req dto.CreateEventRequest) (
 		Description: req.Description,
 		Date:        req.Date,
 		Location:    req.Location,
+		Type:        defaultString(req.Type, "event"),
+		Status:      defaultString(req.Status, "scheduled"),
 		ImageURL:    pickCover(req.ImageURL, req.Images),
 		Images:      marshalImages(req.Images),
 	}
@@ -56,6 +60,8 @@ func (s *Service) CreateEvent(ctx context.Context, req dto.CreateEventRequest) (
 		Description: e.Description,
 		Date:        e.Date,
 		Location:    e.Location,
+		Type:        e.Type,
+		Status:      e.Status,
 		ImageURL:    e.ImageURL,
 		Images:      parseImages(e.Images),
 		CreatedAt:   e.CreatedAt,
@@ -67,17 +73,23 @@ func (s *Service) UpdateEvent(ctx context.Context, id int64, req dto.UpdateEvent
 	if id <= 0 {
 		return apperrors.Validationf("id события должен быть больше нуля")
 	}
+	old, _ := s.repo.GetEvent(ctx, id)
 	e := &dbEntities.Event{
 		ID:          id,
 		Title:       req.Title,
 		Description: req.Description,
 		Date:        req.Date,
 		Location:    req.Location,
+		Type:        defaultString(req.Type, "event"),
+		Status:      defaultString(req.Status, "scheduled"),
 		ImageURL:    pickCover(req.ImageURL, req.Images),
 		Images:      marshalImages(req.Images),
 	}
 	if err := s.repo.UpdateEvent(ctx, e); err != nil {
 		return wrapRepoError("UpdateEvent", err)
+	}
+	if old != nil && (!old.Date.Equal(e.Date) || old.Location != e.Location || old.Status != e.Status) {
+		_ = s.repo.CreateNotificationsForEventAttendees(ctx, id, "Событие изменено", "Проверьте новое время, место или статус: "+e.Title)
 	}
 	return nil
 }
@@ -91,4 +103,11 @@ func (s *Service) DeleteEvent(ctx context.Context, id int64) error {
 		return wrapRepoError("DeleteEvent", err)
 	}
 	return nil
+}
+
+func defaultString(value, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
 }

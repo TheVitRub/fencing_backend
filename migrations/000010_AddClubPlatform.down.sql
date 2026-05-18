@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS student_progress;
+DROP TABLE IF EXISTS glossary_terms;
+DROP TABLE IF EXISTS knowledge_articles;
+DROP TABLE IF EXISTS instructor_profiles;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS event_attendees;
+ALTER TABLE events DROP COLUMN IF EXISTS status;
+ALTER TABLE events DROP COLUMN IF EXISTS type;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS user_identities;
+DROP TABLE IF EXISTS users;

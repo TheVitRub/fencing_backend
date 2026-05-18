@@ -55,6 +55,7 @@ func NewRouter(svc *application.Service, log *logger.Logger, upload UploadConfig
 		// --- Аутентификация ---
 		auth := api.Group("/auth")
 		auth.POST("/login", h.loginHandler)
+		auth.POST("/register", h.registerHandler)
 
 		// --- Публичные маршруты ---
 		api.GET("/pages/:slug", h.getPageHandler)
@@ -63,11 +64,26 @@ func NewRouter(svc *application.Service, log *logger.Logger, upload UploadConfig
 		api.GET("/honor", h.listHonorMembersHandler)
 		api.GET("/achievements", h.listAchievementsHandler)
 		api.GET("/founder", h.getFounderHandler)
+		api.GET("/comments", h.listCommentsHandler)
+		api.GET("/events/:id/attendees", h.listAttendeesHandler)
+		api.GET("/instructors", h.listInstructorProfilesHandler)
+		api.GET("/knowledge", h.listKnowledgeHandler)
+		api.GET("/glossary", h.listGlossaryHandler)
 
 		// --- Административные маршруты (требуют JWT) ---
 		admin := api.Group("/admin")
 		admin.Use(authMiddleware(svc))
 		{
+			admin.GET("/me", h.meHandler)
+			admin.GET("/knowledge-view", h.listKnowledgeHandler)
+			admin.GET("/notifications", h.listNotificationsHandler)
+			admin.PUT("/notifications/:id/read", h.markNotificationReadHandler)
+			admin.GET("/comments", h.listCommentsHandler)
+			admin.POST("/comments", h.createCommentHandler)
+			admin.PUT("/comments/:id/status", roleMiddleware("instructor", "admin", "founder"), h.updateCommentStatusHandler)
+			admin.PUT("/events/:id/attendance", h.setAttendanceHandler)
+			admin.GET("/progress", h.listProgressHandler)
+
 			// Загрузка файлов
 			admin.POST("/upload", h.uploadHandler)
 
@@ -96,6 +112,26 @@ func NewRouter(svc *application.Service, log *logger.Logger, upload UploadConfig
 
 			// Основатель
 			admin.PUT("/founder", h.upsertFounderHandler)
+
+			// Пользователи и роли
+			admin.GET("/users", roleMiddleware("admin", "founder"), h.listUsersHandler)
+			admin.PUT("/users/:id/role", roleMiddleware("admin", "founder"), h.updateUserRoleHandler)
+
+			// Профили инструкторов
+			admin.PUT("/instructors", roleMiddleware("instructor", "admin", "founder"), h.upsertInstructorProfileHandler)
+
+			// База знаний
+			admin.POST("/knowledge", roleMiddleware("instructor", "admin", "founder"), h.createKnowledgeHandler)
+			admin.PUT("/knowledge/:id", roleMiddleware("instructor", "admin", "founder"), h.updateKnowledgeHandler)
+			admin.DELETE("/knowledge/:id", roleMiddleware("instructor", "admin", "founder"), h.deleteKnowledgeHandler)
+
+			// Глоссарий
+			admin.POST("/glossary", roleMiddleware("instructor", "admin", "founder"), h.createGlossaryHandler)
+			admin.PUT("/glossary/:id", roleMiddleware("instructor", "admin", "founder"), h.updateGlossaryHandler)
+			admin.DELETE("/glossary/:id", roleMiddleware("instructor", "admin", "founder"), h.deleteGlossaryHandler)
+
+			// Учебный прогресс
+			admin.PUT("/progress", roleMiddleware("instructor", "admin", "founder"), h.upsertProgressHandler)
 		}
 	}
 

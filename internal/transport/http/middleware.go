@@ -52,3 +52,38 @@ func authMiddleware(svc *application.Service) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func getClaims(c *gin.Context) (*application.Claims, bool) {
+	raw, ok := c.Get("claims")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "нужен вход"})
+		return nil, false
+	}
+	claims, ok := raw.(*application.Claims)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "некорректный токен"})
+		return nil, false
+	}
+	if claims.UserID == 0 {
+		claims.UserID = claims.AdminID
+	}
+	return claims, true
+}
+
+func roleMiddleware(allowed ...string) gin.HandlerFunc {
+	allowedSet := map[string]bool{}
+	for _, role := range allowed {
+		allowedSet[role] = true
+	}
+	return func(c *gin.Context) {
+		claims, ok := getClaims(c)
+		if !ok {
+			return
+		}
+		if !allowedSet[claims.Role] {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "недостаточно прав"})
+			return
+		}
+		c.Next()
+	}
+}

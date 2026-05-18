@@ -11,5 +11,25 @@ type LoginRequest struct {
 
 // LoginResponse — ответ с JWT-токеном при успешном входе.
 type LoginResponse struct {
-	Token string `json:"token"`
+	Token string       `json:"token"`
+	User  UserResponse `json:"user"`
+}
+
+type RegisterRequest struct {
+	Login       string `json:"login" binding:"required"`
+	Email       string `json:"email"`
+	Password    string `json:"password" binding:"required"`
+	DisplayName string `json:"display_name"`
+}
+
+type UserResponse struct {
+	ID          int64  `json:"id"`
+	Login       string `json:"login"`
+	Email       string `json:"email"`
+	DisplayName string `json:"display_name"`
+	Role        string `json:"role"`
+}
+
+type UpdateUserRoleRequest struct {
+	Role string `json:"role" binding:"required"`
 }

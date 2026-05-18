@@ -9,8 +9,10 @@ type EventResponse struct {
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
 	Location    string    `json:"location"`
-	ImageURL    string    `json:"image_url"`         // главная обложка
-	Images      []string  `json:"images"`            // галерея
+	Type        string    `json:"type"`
+	Status      string    `json:"status"`
+	ImageURL    string    `json:"image_url"` // главная обложка
+	Images      []string  `json:"images"`    // галерея
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -20,6 +22,8 @@ type CreateEventRequest struct {
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"        binding:"required"`
 	Location    string    `json:"location"`
+	Type        string    `json:"type"`
+	Status      string    `json:"status"`
 	ImageURL    string    `json:"image_url"`
 	Images      []string  `json:"images"`
 }
@@ -31,6 +35,8 @@ type UpdateEventRequest struct {
 	Description string    `json:"description"`
 	Date        time.Time `json:"date"`
 	Location    string    `json:"location"`
+	Type        string    `json:"type"`
+	Status      string    `json:"status"`
 	ImageURL    string    `json:"image_url"`
 	Images      []string  `json:"images"`
 }

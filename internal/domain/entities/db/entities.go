@@ -12,6 +12,18 @@ type Admin struct {
 	PasswordHash string `db:"password_hash"`
 }
 
+// User — пользователь сайта: зарегистрированный гость, ученик, инструктор, админ или основатель.
+type User struct {
+	ID           int64     `db:"id"`
+	Login        string    `db:"login"`
+	Email        string    `db:"email"`
+	PasswordHash string    `db:"password_hash"`
+	DisplayName  string    `db:"display_name"`
+	Role         string    `db:"role"`
+	CreatedAt    time.Time `db:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"`
+}
+
 // Page — страница сайта с произвольным JSON-контентом.
 // Поле Content хранит JSON-строку, которую фронт разбирает самостоятельно.
 type Page struct {
@@ -30,6 +42,8 @@ type Event struct {
 	Description string    `db:"description"`
 	Date        time.Time `db:"date"`
 	Location    string    `db:"location"`
+	Type        string    `db:"type"`
+	Status      string    `db:"status"`
 	ImageURL    string    `db:"image_url"` // главная обложка (deprecated, оставлено для совместимости)
 	Images      string    `db:"images"`    // JSON-массив URL: ["/uploads/a.jpg", ...]
 	CreatedAt   time.Time `db:"created_at"`
@@ -76,4 +90,82 @@ type Founder struct {
 	Bio       string    `db:"bio"`
 	PhotoURL  string    `db:"photo_url"`
 	UpdatedAt time.Time `db:"updated_at"`
+}
+
+type Comment struct {
+	ID              int64     `db:"id"`
+	TargetType      string    `db:"target_type"`
+	TargetID        int64     `db:"target_id"`
+	UserID          int64     `db:"user_id"`
+	UserDisplayName string    `db:"user_display_name"`
+	UserRole        string    `db:"user_role"`
+	Body            string    `db:"body"`
+	Status          string    `db:"status"`
+	CreatedAt       time.Time `db:"created_at"`
+	UpdatedAt       time.Time `db:"updated_at"`
+}
+
+type EventAttendee struct {
+	EventID         int64     `db:"event_id"`
+	UserID          int64     `db:"user_id"`
+	UserDisplayName string    `db:"user_display_name"`
+	UserRole        string    `db:"user_role"`
+	Status          string    `db:"status"`
+	CreatedAt       time.Time `db:"created_at"`
+}
+
+type Notification struct {
+	ID        int64     `db:"id"`
+	UserID    int64     `db:"user_id"`
+	EventID   *int64    `db:"event_id"`
+	Title     string    `db:"title"`
+	Body      string    `db:"body"`
+	IsRead    bool      `db:"is_read"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+type InstructorProfile struct {
+	ID             int64     `db:"id"`
+	UserID         int64     `db:"user_id"`
+	Role           string    `db:"role"`
+	Name           string    `db:"name"`
+	PhotoURL       string    `db:"photo_url"`
+	Specialization string    `db:"specialization"`
+	Weapons        string    `db:"weapons"`
+	Experience     string    `db:"experience"`
+	Quote          string    `db:"quote"`
+	Bio            string    `db:"bio"`
+	UpdatedAt      time.Time `db:"updated_at"`
+}
+
+type KnowledgeArticle struct {
+	ID         int64     `db:"id"`
+	Title      string    `db:"title"`
+	Category   string    `db:"category"`
+	Body       string    `db:"body"`
+	Visibility string    `db:"visibility"`
+	SortOrder  int       `db:"sort_order"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+}
+
+type GlossaryTerm struct {
+	ID         int64     `db:"id"`
+	Term       string    `db:"term"`
+	Category   string    `db:"category"`
+	Definition string    `db:"definition"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+}
+
+type StudentProgress struct {
+	ID              int64     `db:"id"`
+	UserID          int64     `db:"user_id"`
+	UserDisplayName string    `db:"user_display_name"`
+	Discipline      string    `db:"discipline"`
+	Level           string    `db:"level"`
+	PassedChecks    string    `db:"passed_checks"`
+	InstructorNote  string    `db:"instructor_note"`
+	UpdatedBy       *int64    `db:"updated_by"`
+	UpdatedAt       time.Time `db:"updated_at"`
 }

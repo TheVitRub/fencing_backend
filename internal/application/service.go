@@ -56,16 +56,20 @@ func New(
 
 // Claims — полезная нагрузка JWT-токена администратора.
 type Claims struct {
-	AdminID int64  `json:"admin_id"`
+	AdminID int64  `json:"admin_id,omitempty"` // legacy alias
+	UserID  int64  `json:"user_id"`
 	Login   string `json:"login"`
+	Role    string `json:"role"`
 	jwt.RegisteredClaims
 }
 
 // issueToken выпускает JWT для администратора.
-func (s *Service) issueToken(adminID int64, login string) (string, error) {
+func (s *Service) issueToken(userID int64, login, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
-		AdminID: adminID,
+		AdminID: userID,
+		UserID:  userID,
 		Login:   login,
+		Role:    role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.jwtTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
