@@ -16,14 +16,4 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            set -e
-            cd ~/fencing_backend
-            git pull
-            go build -o /tmp/fencing-backend ./cmd/...
-            make migrate-up
-            sudo mv /tmp/fencing-backend /opt/fencing-backend/fencing-backend
-            sudo chown $USER:fencing /opt/fencing-backend/fencing-backend
-            sudo chmod 750 /opt/fencing-backend/fencing-backend
-            sudo systemctl restart fencing-backend
-            sleep 2
-            sudo systemctl is-active fencing-backend
+            /home/tvr/fencing/deploy.sh
