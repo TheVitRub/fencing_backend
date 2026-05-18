@@ -2,7 +2,7 @@ INSERT INTO events (title, description, date, location, type, status, discipline
 SELECT
   'Занятие CourtSword',
   'Плановое занятие по CourtSword: стойка, мера, линия атаки, парирование и ответ. Можно записаться прямо из календаря.',
-  date_trunc('day', NOW()) + INTERVAL '3 days' + TIME '19:30',
+  date_trunc('day', NOW()) + INTERVAL '3 days' + TIME '12:30',
   'Зал школы, уточнение в группе VK',
   'training',
   'scheduled',
