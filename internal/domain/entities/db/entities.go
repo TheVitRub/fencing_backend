@@ -44,6 +44,7 @@ type Event struct {
 	Location    string    `db:"location"`
 	Type        string    `db:"type"`
 	Status      string    `db:"status"`
+	Discipline  string    `db:"discipline"`
 	ImageURL    string    `db:"image_url"` // главная обложка (deprecated, оставлено для совместимости)
 	Images      string    `db:"images"`    // JSON-массив URL: ["/uploads/a.jpg", ...]
 	CreatedAt   time.Time `db:"created_at"`

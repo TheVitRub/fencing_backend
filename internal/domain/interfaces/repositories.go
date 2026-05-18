@@ -21,8 +21,10 @@ type DBRepository interface {
 	GetAdminByLogin(ctx context.Context, login string) (*dbEntities.Admin, error)
 	GetUserByLogin(ctx context.Context, login string) (*dbEntities.User, error)
 	GetUserByID(ctx context.Context, id int64) (*dbEntities.User, error)
+	GetUserByIdentity(ctx context.Context, provider, providerUserID string) (*dbEntities.User, error)
 	ListUsers(ctx context.Context) ([]dbEntities.User, error)
 	CreateUser(ctx context.Context, u *dbEntities.User) error
+	CreateUserIdentity(ctx context.Context, userID int64, provider, providerUserID string) error
 	UpdateUserRole(ctx context.Context, id int64, role string) error
 
 	// GetPage возвращает страницу по slug.

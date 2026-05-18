@@ -35,6 +35,21 @@ func (r *DBRepository) GetUserByID(ctx context.Context, id int64) (*dbEntities.U
 	return &u, nil
 }
 
+func (r *DBRepository) GetUserByIdentity(ctx context.Context, provider, providerUserID string) (*dbEntities.User, error) {
+	var u dbEntities.User
+	err := r.db.Get(ctx, &u,
+		`SELECT u.id, u.login, u.email, u.password_hash, u.display_name, u.role, u.created_at, u.updated_at
+		 FROM users u
+		 JOIN user_identities ui ON ui.user_id=u.id
+		 WHERE ui.provider=$1 AND ui.provider_user_id=$2`,
+		provider, providerUserID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("GetUserByIdentity provider=%s: %w", provider, err)
+	}
+	return &u, nil
+}
+
 func (r *DBRepository) ListUsers(ctx context.Context) ([]dbEntities.User, error) {
 	var users []dbEntities.User
 	err := r.db.Select(ctx, nil, &users,
@@ -58,6 +73,19 @@ func (r *DBRepository) CreateUser(ctx context.Context, u *dbEntities.User) error
 	)
 	if err != nil {
 		return fmt.Errorf("CreateUser: %w", err)
+	}
+	return nil
+}
+
+func (r *DBRepository) CreateUserIdentity(ctx context.Context, userID int64, provider, providerUserID string) error {
+	_, err := r.db.Exec(ctx, nil,
+		`INSERT INTO user_identities (user_id, provider, provider_user_id)
+		 VALUES ($1, $2, $3)
+		 ON CONFLICT (provider, provider_user_id) DO NOTHING`,
+		userID, provider, providerUserID,
+	)
+	if err != nil {
+		return fmt.Errorf("CreateUserIdentity: %w", err)
 	}
 	return nil
 }

@@ -56,6 +56,8 @@ func NewRouter(svc *application.Service, log *logger.Logger, upload UploadConfig
 		auth := api.Group("/auth")
 		auth.POST("/login", h.loginHandler)
 		auth.POST("/register", h.registerHandler)
+		auth.GET("/oauth/:provider/start", h.oauthStartHandler)
+		auth.GET("/oauth/:provider/callback", h.oauthCallbackHandler)
 
 		// --- Публичные маршруты ---
 		api.GET("/pages/:slug", h.getPageHandler)

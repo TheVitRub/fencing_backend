@@ -5,6 +5,9 @@
 Все публичные маршруты находятся под `/api`.
 
 - `POST /api/auth/login` - вход администратора.
+- `POST /api/auth/register` - обычная регистрация пользователя.
+- `GET /api/auth/oauth/:provider/start` - старт OAuth для `vk` или `google`.
+- `GET /api/auth/oauth/:provider/callback` - OAuth callback.
 - `GET /api/pages/:slug` - получить страницу.
 - `GET /api/events` - список событий.
 - `GET /api/plans` - список учебных планов.
@@ -60,6 +63,7 @@
 - seed data;
 - image arrays.
 - club platform: users, roles, comments, attendance, notifications, instructor profiles, knowledge, glossary, progress.
+- event discipline and seed club content for CourtSword, student materials and glossary.
 
 Seed-данные находятся в `000008_SeedData.up.sql`.
 
@@ -90,3 +94,11 @@ Seed-данные находятся в `000008_SeedData.up.sql`.
 - `founder`
 
 Отметки "Я приду" лежат в `event_attendees`. При изменении даты, места или статуса события сервис создаёт внутренние уведомления для записавшихся пользователей.
+
+OAuth через VK/Google требует переменные окружения:
+
+- `PUBLIC_BASE_URL`
+- `VK_CLIENT_ID`
+- `VK_CLIENT_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`

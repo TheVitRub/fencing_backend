@@ -24,6 +24,7 @@ func (s *Service) ListEvents(ctx context.Context) ([]dto.EventResponse, error) {
 			Location:    e.Location,
 			Type:        e.Type,
 			Status:      e.Status,
+			Discipline:  e.Discipline,
 			ImageURL:    e.ImageURL,
 			Images:      parseImages(e.Images),
 			CreatedAt:   e.CreatedAt,
@@ -44,6 +45,7 @@ func (s *Service) CreateEvent(ctx context.Context, req dto.CreateEventRequest) (
 		Location:    req.Location,
 		Type:        defaultString(req.Type, "event"),
 		Status:      defaultString(req.Status, "scheduled"),
+		Discipline:  defaultString(req.Discipline, "CourtSword"),
 		ImageURL:    pickCover(req.ImageURL, req.Images),
 		Images:      marshalImages(req.Images),
 	}
@@ -62,6 +64,7 @@ func (s *Service) CreateEvent(ctx context.Context, req dto.CreateEventRequest) (
 		Location:    e.Location,
 		Type:        e.Type,
 		Status:      e.Status,
+		Discipline:  e.Discipline,
 		ImageURL:    e.ImageURL,
 		Images:      parseImages(e.Images),
 		CreatedAt:   e.CreatedAt,
@@ -82,6 +85,7 @@ func (s *Service) UpdateEvent(ctx context.Context, id int64, req dto.UpdateEvent
 		Location:    req.Location,
 		Type:        defaultString(req.Type, "event"),
 		Status:      defaultString(req.Status, "scheduled"),
+		Discipline:  defaultString(req.Discipline, "CourtSword"),
 		ImageURL:    pickCover(req.ImageURL, req.Images),
 		Images:      marshalImages(req.Images),
 	}
