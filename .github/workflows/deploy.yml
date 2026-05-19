@@ -5,9 +5,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: fencing-production-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -16,4 +21,12 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            bash <<'DEPLOY'
+            set -Eeuo pipefail
+
+            exec 9>/tmp/fencing-deploy.lock
+            echo "Waiting for fencing deploy lock"
+            flock 9
+
             /home/tvr/fencing/deploy.sh
+            DEPLOY
