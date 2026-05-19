@@ -12,7 +12,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -24,9 +23,48 @@ jobs:
             bash <<'DEPLOY'
             set -Eeuo pipefail
 
-            exec 9>/tmp/fencing-deploy.lock
-            echo "Waiting for fencing deploy lock"
-            flock 9
+            cd /home/tvr/fencing
 
-            /home/tvr/fencing/deploy.sh
+            request_file=/tmp/fencing-deploy.requested
+            lock_file=/tmp/fencing-deploy.lock
+
+            touch "$request_file"
+
+            exec 9>"$lock_file"
+            if ! flock -n 9; then
+              echo "Deploy is already running; queued the latest version"
+              exit 0
+            fi
+
+            while true; do
+              rm -f "$request_file"
+
+              echo "Syncing repositories"
+              git -C backend fetch --prune origin main
+              git -C backend reset --hard origin/main
+              git -C frontend fetch --prune origin main
+              git -C frontend reset --hard origin/main
+
+              echo "Building images before replacing containers"
+              docker compose -p fencing build backend frontend
+
+              echo "Replacing containers after successful build"
+              if docker compose up --help | grep -q -- '--wait'; then
+                docker compose -p fencing up -d --no-build --remove-orphans --wait
+              else
+                docker compose -p fencing up -d --no-build --remove-orphans
+              fi
+
+              docker compose -p fencing ps
+
+              if [ ! -f "$request_file" ]; then
+                sleep 2
+              fi
+
+              if [ ! -f "$request_file" ]; then
+                break
+              fi
+
+              echo "Another deploy request arrived; deploying the latest version"
+            done
             DEPLOY
